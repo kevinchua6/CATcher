@@ -62,6 +62,7 @@ export class AuthComponent implements OnInit, OnDestroy {
     const state = this.activatedRoute.snapshot.queryParamMap.get('state');
 
     if (this.authService.isAuthenticated()) {
+      this.currentUserName = this.userService.currentUser.loginId;
       this.router.navigate([this.phaseService.currentPhase]);
       return;
     }
@@ -188,7 +189,8 @@ export class AuthComponent implements OnInit, OnDestroy {
   private initAccessTokenSubscription() {
     this.accessTokenSubscription = this.authService.accessToken
       .pipe(
-        filter((token: string) => !!token),
+        // Ensure token is non-empty and user is starting a new login session
+        filter((token: string) => !!token && !this.authService.isProcessingAutoLogin.getValue()),
         flatMap(() => this.userService.getAuthenticatedUser())
       )
       .subscribe((user: GithubUser) => {
