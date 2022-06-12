@@ -3,6 +3,7 @@ import { PermissionService } from '../core/services/permission.service';
 import { UserService } from '../core/services/user.service';
 import { TABLE_COLUMNS } from '../shared/issue-tables/issue-tables-columns';
 import { ACTION_BUTTONS, IssueTablesComponent } from '../shared/issue-tables/issue-tables.component';
+import { TABLE_TYPE } from '../shared/issue-tables/IssuesDataTable';
 
 @Component({
   selector: 'app-phase-bug-reporting',
@@ -10,8 +11,11 @@ import { ACTION_BUTTONS, IssueTablesComponent } from '../shared/issue-tables/iss
   styleUrls: ['./phase-bug-reporting.component.css']
 })
 export class PhaseBugReportingComponent implements OnInit {
+  public readonly TABLE_TYPE = TABLE_TYPE;
+
   readonly displayedColumns = [TABLE_COLUMNS.ID, TABLE_COLUMNS.TITLE, TABLE_COLUMNS.TYPE, TABLE_COLUMNS.SEVERITY, TABLE_COLUMNS.ACTIONS];
   readonly actionButtons: ACTION_BUTTONS[] = [ACTION_BUTTONS.VIEW_IN_WEB, ACTION_BUTTONS.DELETE_ISSUE, ACTION_BUTTONS.FIX_ISSUE];
+  readonly actionButtonsUndo: ACTION_BUTTONS[] = [ACTION_BUTTONS.UNDO_ISSUE];
 
   @ViewChild(IssueTablesComponent, { static: true }) table: IssueTablesComponent;
 

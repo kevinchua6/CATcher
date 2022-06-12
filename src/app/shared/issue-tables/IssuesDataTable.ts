@@ -2,11 +2,17 @@ import { DataSource } from '@angular/cdk/table';
 import { MatPaginator, MatSort } from '@angular/material';
 import { BehaviorSubject, merge, Observable, Subscription } from 'rxjs';
 import { flatMap, map } from 'rxjs/operators';
+import { ClosedIssueService } from '../../core/services/closed-issue.service';
 import { Issue } from '../../core/models/issue.model';
 import { IssueService } from '../../core/services/issue.service';
 import { paginateData } from './issue-paginator';
 import { getSortedData } from './issue-sorter';
 import { applySearchFilter } from './search-filter';
+
+export enum TABLE_TYPE {
+  OPEN_ISSUES = 1,
+  CLOSED_ISSUES = 2
+}
 
 export class IssuesDataTable extends DataSource<Issue> {
   private filterChange = new BehaviorSubject('');
@@ -18,10 +24,12 @@ export class IssuesDataTable extends DataSource<Issue> {
 
   constructor(
     private issueService: IssueService,
+    private closedIssueService: ClosedIssueService,
     private sort: MatSort,
     private paginator: MatPaginator,
     private displayedColumn: string[],
-    private defaultFilter?: (issue: Issue) => boolean
+    private defaultFilter?: (issue: Issue) => boolean,
+    private tableType?: TABLE_TYPE
   ) {
     super();
   }
@@ -36,11 +44,13 @@ export class IssuesDataTable extends DataSource<Issue> {
     this.issuesSubject.complete();
     this.issueSubscription.unsubscribe();
     this.issueService.stopPollIssues();
+    this.closedIssueService.stopPollIssues();
   }
 
   loadIssues() {
     const displayDataChanges = [
       this.issueService.issues$,
+      this.closedIssueService.issues$,
       this.paginator.page,
       this.sort.sortChange,
       this.filterChange,
@@ -48,28 +58,55 @@ export class IssuesDataTable extends DataSource<Issue> {
     ];
 
     this.issueService.startPollIssues();
-    this.issueSubscription = this.issueService.issues$
-      .pipe(
-        flatMap(() => {
-          return merge(...displayDataChanges).pipe(
-            map(() => {
-              let data = <Issue[]>Object.values(this.issueService.issues$.getValue()).reverse();
-              if (this.defaultFilter) {
-                data = data.filter(this.defaultFilter);
-              }
-              data = getSortedData(this.sort, data);
-              data = this.getFilteredTeamData(data);
-              data = applySearchFilter(this.filter, this.displayedColumn, this.issueService, data);
-              data = paginateData(this.paginator, data);
+    this.closedIssueService.startPollIssues();
 
-              return data;
-            })
-          );
-        })
-      )
-      .subscribe((issues) => {
-        this.issuesSubject.next(issues);
-      });
+    if (this.tableType == TABLE_TYPE.CLOSED_ISSUES) {
+      this.issueSubscription = this.closedIssueService.issues$
+        .pipe(
+          flatMap(() => {
+            return merge(...displayDataChanges).pipe(
+              map(() => {
+                let data = <Issue[]>Object.values(this.closedIssueService.issues$.getValue()).reverse();
+                if (this.defaultFilter) {
+                  data = data.filter(this.defaultFilter);
+                }
+                data = getSortedData(this.sort, data);
+                data = this.getFilteredTeamData(data);
+                data = applySearchFilter(this.filter, this.displayedColumn, this.issueService, data);
+                data = paginateData(this.paginator, data);
+
+                return data;
+              })
+            );
+          })
+        )
+        .subscribe((issues) => {
+          this.issuesSubject.next(issues);
+        });
+    } else {
+      this.issueSubscription = this.issueService.issues$
+        .pipe(
+          flatMap(() => {
+            return merge(...displayDataChanges).pipe(
+              map(() => {
+                let data = <Issue[]>Object.values(this.issueService.issues$.getValue()).reverse();
+                if (this.defaultFilter) {
+                  data = data.filter(this.defaultFilter);
+                }
+                data = getSortedData(this.sort, data);
+                data = this.getFilteredTeamData(data);
+                data = applySearchFilter(this.filter, this.displayedColumn, this.issueService, data);
+                data = paginateData(this.paginator, data);
+
+                return data;
+              })
+            );
+          })
+        )
+        .subscribe((issues) => {
+          this.issuesSubject.next(issues);
+        });
+    }
   }
 
   get filter(): string {

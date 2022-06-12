@@ -29,5 +29,17 @@
     </mat-grid-tile>
   </mat-grid-list>
 
-  <app-issue-tables [headers]="this.displayedColumns" [actions]="this.actionButtons"></app-issue-tables>
+  <app-issue-tables
+    [headers]="this.displayedColumns"
+    [actions]="this.actionButtons"
+    [tableType]="this.TABLE_TYPE.OPEN_ISSUES"
+  ></app-issue-tables>
+
+  <h1 class="mat-headline">Deleted Issues</h1>
+
+  <app-issue-tables
+    [headers]="this.displayedColumns"
+    [actions]="this.actionButtonsUndo"
+    [tableType]="this.TABLE_TYPE.CLOSED_ISSUES"
+  ></app-issue-tables>
 </div>
