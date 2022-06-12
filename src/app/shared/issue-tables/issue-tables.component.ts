@@ -1,8 +1,8 @@
 import { AfterViewInit, Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatSnackBar, MatSort } from '@angular/material';
 import { finalize } from 'rxjs/operators';
-import { ClosedIssueService } from '../../core/services/closed-issue.service';
 import { Issue, STATUS } from '../../core/models/issue.model';
+import { ClosedIssueService } from '../../core/services/closed-issue.service';
 import { DialogService } from '../../core/services/dialog.service';
 import { ErrorHandlingService } from '../../core/services/error-handling.service';
 import { GithubService } from '../../core/services/github.service';

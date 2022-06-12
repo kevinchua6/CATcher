@@ -2,8 +2,8 @@ import { DataSource } from '@angular/cdk/table';
 import { MatPaginator, MatSort } from '@angular/material';
 import { BehaviorSubject, merge, Observable, Subscription } from 'rxjs';
 import { flatMap, map } from 'rxjs/operators';
-import { ClosedIssueService } from '../../core/services/closed-issue.service';
 import { Issue } from '../../core/models/issue.model';
+import { ClosedIssueService } from '../../core/services/closed-issue.service';
 import { IssueService } from '../../core/services/issue.service';
 import { paginateData } from './issue-paginator';
 import { getSortedData } from './issue-sorter';
@@ -60,7 +60,7 @@ export class IssuesDataTable extends DataSource<Issue> {
     this.issueService.startPollIssues();
     this.closedIssueService.startPollIssues();
 
-    if (this.tableType == TABLE_TYPE.CLOSED_ISSUES) {
+    if (this.tableType === TABLE_TYPE.CLOSED_ISSUES) {
       this.issueSubscription = this.closedIssueService.issues$
         .pipe(
           flatMap(() => {
