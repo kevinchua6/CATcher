@@ -239,6 +239,15 @@
       >
         <mat-icon>delete_outline</mat-icon>
       </button>
+      <button
+        mat-button
+        matTooltip="Restore this issue"
+        *ngIf="this.isActionVisible(action_buttons.UNDO_ISSUE)"
+        (click)="this.undeleteIssue(issue.id, $event)"
+        style="transform: scale(0.8)"
+      >
+        <mat-icon>undo</mat-icon>
+      </button>
       <mat-spinner
         color="warn"
         [diameter]="25"

@@ -5,7 +5,7 @@ export type RestGithubSortBy = 'created' | 'updated' | 'comments';
 export type RestGithubSortDir = 'asc' | 'desc';
 
 export interface RestGithubIssueFilterData {
-  state?: RestGithubIssueState;
+  states?: RestGithubIssueState;
   labels?: Array<string>;
   sort?: RestGithubSortBy;
   direction?: RestGithubSortDir;
@@ -20,7 +20,7 @@ export interface RestGithubIssueFilterData {
  * Ref: https://developer.github.com/v3/issues/#parameters-3
  * */
 export default class RestGithubIssueFilter implements RestGithubIssueFilterData {
-  state?: RestGithubIssueState;
+  states?: RestGithubIssueState;
   labels?: Array<string>;
   sort?: RestGithubSortBy;
   direction?: RestGithubSortDir;
@@ -35,6 +35,7 @@ export default class RestGithubIssueFilter implements RestGithubIssueFilterData 
   }
 
   convertToGraphqlFilter(): IssueFilters {
+    console.log(this.states);
     return <IssueFilters>{
       assignee: this.assignee,
       createdBy: this.creator,
@@ -42,7 +43,7 @@ export default class RestGithubIssueFilter implements RestGithubIssueFilterData 
       mentioned: this.mentioned,
       milestone: this.milestone,
       since: this.since,
-      states: [this.state === 'close' ? IssueState.Closed : IssueState.Open]
+      states: [this.states === 'close' ? IssueState.Closed : IssueState.Open]
     };
   }
 }

@@ -2,6 +2,7 @@ import { AfterViewInit, Component, Input, OnInit, ViewChild } from '@angular/cor
 import { MatPaginator, MatSnackBar, MatSort } from '@angular/material';
 import { finalize } from 'rxjs/operators';
 import { Issue, STATUS } from '../../core/models/issue.model';
+import { ClosedIssueService } from '../../core/services/closed-issue.service';
 import { DialogService } from '../../core/services/dialog.service';
 import { ErrorHandlingService } from '../../core/services/error-handling.service';
 import { GithubService } from '../../core/services/github.service';
@@ -12,7 +13,7 @@ import { PermissionService } from '../../core/services/permission.service';
 import { PhaseService } from '../../core/services/phase.service';
 import { UserService } from '../../core/services/user.service';
 import { UndoActionComponent } from '../../shared/action-toasters/undo-action/undo-action.component';
-import { IssuesDataTable } from './IssuesDataTable';
+import { IssuesDataTable, TABLE_TYPE } from './IssuesDataTable';
 
 export enum ACTION_BUTTONS {
   VIEW_IN_WEB,
@@ -20,7 +21,8 @@ export enum ACTION_BUTTONS {
   MARK_AS_PENDING,
   RESPOND_TO_ISSUE,
   FIX_ISSUE,
-  DELETE_ISSUE
+  DELETE_ISSUE,
+  UNDO_ISSUE
 }
 
 @Component({
@@ -34,6 +36,7 @@ export class IssueTablesComponent implements OnInit, AfterViewInit {
   @Input() headers: string[];
   @Input() actions: ACTION_BUTTONS[];
   @Input() filters?: any = undefined;
+  @Input() tableType?: TABLE_TYPE;
 
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
@@ -54,6 +57,7 @@ export class IssueTablesComponent implements OnInit, AfterViewInit {
     public labelService: LabelService,
     private githubService: GithubService,
     public issueService: IssueService,
+    public closedIssueService: ClosedIssueService,
     private phaseService: PhaseService,
     private errorHandlingService: ErrorHandlingService,
     private loggingService: LoggingService,
@@ -62,7 +66,15 @@ export class IssueTablesComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit() {
-    this.issues = new IssuesDataTable(this.issueService, this.sort, this.paginator, this.headers, this.filters);
+    this.issues = new IssuesDataTable(
+      this.issueService,
+      this.closedIssueService,
+      this.sort,
+      this.paginator,
+      this.headers,
+      this.filters,
+      this.tableType
+    );
     this.issuesPendingDeletion = {};
   }
 
